@@ -2,14 +2,23 @@
 #include <iostream>
 
 int main(int argc, char **argv) {
-	CLI::App app{"App description"};
+	CLI::App app{"Track how long ago you last did a task"};
+	app.require_subcommand(1);
 
-	// Define options
-	int p = 0;
-	app.add_option("-p", p, "Parameter");
+	/* do task1, task2, ... */
+	auto _do = app.add_subcommand("do", "update tasks' dates to now. Creates tasks that didn't exist before");
+	std::vector<std::string> do_tasks;
+	_do->add_option("tasks", do_tasks, "list done tasks");
+
+	/* view */
+	auto _view = app.add_subcommand("view", "view all tasks, with how many minutes ago you last did them");
+
+	/* remove task1 task2 */
+	auto _remove = app.add_subcommand("remove", "remove specified tasks");
+	std::vector<std::string> removed_tasks;
+	_remove->add_option("tasks", removed_tasks, "list removed tasks");
 
 	CLI11_PARSE(app, argc, argv);
 
-	std::cout << "Parameter value: " << p << std::endl;
 	return 0;
 }
