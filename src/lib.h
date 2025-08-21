@@ -10,6 +10,8 @@ namespace kamio {
 	// returns $XDG_DATA_HOME or $HOME/.local/share
 	std::filesystem::path xdg_data_home();
 
+	std::string format_duration(const std::chrono::seconds duration, bool days, bool hours, bool mins, bool secs);
+
 	class TaskManager {
 		std::unordered_map<std::string, std::chrono::system_clock::time_point> tasks;
 

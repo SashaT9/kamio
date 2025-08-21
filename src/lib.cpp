@@ -10,6 +10,31 @@ std::filesystem::path kamio::xdg_data_home() {
 	throw std::runtime_error("xdg data home not set");
 }
 
+std::string kamio::format_duration(std::chrono::seconds duration, const bool days, const bool hours, const bool mins, const bool secs) {
+	std::string res;
+	if (days) {
+		const auto d = std::chrono::duration_cast<std::chrono::days>(duration);
+		duration -= d;
+		res.append(std::to_string(d.count()) + "d ");
+	}
+	if (hours) {
+		const auto h = std::chrono::duration_cast<std::chrono::hours>(duration);
+		duration -= h;
+		res.append(std::to_string(h.count()) + "h ");
+	}
+	if (mins) {
+		const auto m = std::chrono::duration_cast<std::chrono::minutes>(duration);
+		duration -= m;
+		res.append(std::to_string(m.count()) + "m ");
+	}
+	if (secs) {
+		const auto s = std::chrono::duration_cast<std::chrono::seconds>(duration);
+		duration -= s;
+		res.append(std::to_string(s.count()) + "s ");
+	}
+	return res;
+}
+
 kamio::TaskManager kamio::TaskManager::read(const nlohmann::json& j) {
 	TaskManager res;
 	for (auto it = j.begin(); it != j.end(); ++it) {

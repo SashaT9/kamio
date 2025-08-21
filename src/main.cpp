@@ -11,24 +11,39 @@ std::unique_ptr<CLI::App> args(kamio::TaskManager& tasks) {
 
 	/* do task1, task2, ... */
 	const auto _do = app->add_subcommand("do", "update tasks' dates to now. Creates tasks that didn't exist before");
-	const auto do_tasks = std::make_shared<std::vector<std::string>>();
+	auto do_tasks = std::make_shared<std::vector<std::string>>();
 	_do->add_option("tasks", *do_tasks, "list done tasks");
 	_do->callback([&, do_tasks] { tasks._do(*do_tasks); });
 
 	/* view tasks task1, task2, ... */
 	/* default all */
 	const auto _view = app->add_subcommand("view", "view all tasks, with how many minutes ago you last did them");
-	const auto view_tasks = std::make_shared<std::vector<std::string>>(tasks.get_names());
-	_view->add_option("view", *view_tasks, "view task");
-	_view->callback([&, view_tasks] {
+	auto days = std::make_shared<bool>(false);
+	auto hours = std::make_shared<bool>(false);
+	auto minutes = std::make_shared<bool>(false);
+	auto seconds = std::make_shared<bool>(false);
+	_view->add_flag("-D", *days, "display days");
+	_view->add_flag("-H", *hours, "display hours");
+	_view->add_flag("-M", *minutes, "display minutes");
+	_view->add_flag("-S", *seconds, "display seconds");
+	auto view_tasks = std::make_shared<std::vector<std::string>>(tasks.get_names());
+	_view->add_option("view", *view_tasks, "view tasks");
+	_view->callback([&, view_tasks, days, hours, minutes, seconds] {
+		if (!*days && !*hours && !*minutes && !*seconds) {
+			*days = true;
+			*hours = true;
+			*minutes = true;
+			*seconds = false;
+		}
 		for (const auto& [name, time] : tasks._view<std::chrono::seconds>(*view_tasks)) {
-			std::cout << std::left << std::setw(10) << name << std::right << std::setw(5) << time << std::endl;
+			std::cout << std::left << std::setw(10) << name << std::right << std::setw(5) << kamio::format_duration(
+				std::chrono::seconds(time), *days, *hours, *minutes, *seconds) << std::endl;
 		}
  	});
 
 	/* remove task1 task2 */
 	const auto _remove = app->add_subcommand("remove", "remove specified tasks");
-	const auto removed_tasks = std::make_shared<std::vector<std::string>>();
+	auto removed_tasks = std::make_shared<std::vector<std::string>>();
 	_remove->add_option("tasks", *removed_tasks, "list removed tasks");
 	_remove->callback([&, removed_tasks] { tasks._remove(*removed_tasks); });
 
