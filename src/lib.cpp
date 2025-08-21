@@ -20,9 +20,9 @@ kamio::TaskManager kamio::TaskManager::read(const nlohmann::json& j) {
 	return res;
 }
 
-nlohmann::json kamio::TaskManager::write(const TaskManager& cur) {
+nlohmann::json kamio::TaskManager::write() {
 	nlohmann::json j;
-	for (const auto& [name, time] : cur.tasks) {
+	for (const auto& [name, time] : tasks) {
 		const auto secs = std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count();
 		j[name] = secs;
 	}
@@ -40,7 +40,7 @@ void kamio::TaskManager::_do(const std::vector<std::string>& names) {
 }
 
 void kamio::TaskManager::_remove(const std::string& name) {
-	if (tasks.count(name)) {
+	if (tasks.contains(name)) {
 		tasks.erase(name);
 	}
 }
@@ -51,11 +51,16 @@ void kamio::TaskManager::_remove(const std::vector<std::string>& names) {
 	}
 }
 
+template<typename Duration>
 long long kamio::TaskManager::_view(const std::string& name) {
-	if (!tasks.count(name)) {
+	if (!tasks.contains(name)) {
 		return 0;
 	}
 	const auto now = std::chrono::system_clock::now();
-	return std::chrono::duration_cast<std::chrono::seconds>(now-tasks[name]).count();
+	return std::chrono::duration_cast<Duration>(now-tasks[name]).count();
 }
 
+template long long kamio::TaskManager::_view<std::chrono::seconds>(const std::string&);
+template long long kamio::TaskManager::_view<std::chrono::minutes>(const std::string&);
+template long long kamio::TaskManager::_view<std::chrono::hours>(const std::string&);
+template long long kamio::TaskManager::_view<std::chrono::days>(const std::string&);

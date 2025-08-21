@@ -16,10 +16,13 @@ namespace kamio {
 		void _remove(const std::string& name);
 	public:
 		static TaskManager read(const nlohmann::json& j);
-		static nlohmann::json write(const TaskManager& tasks);
+		nlohmann::json write();
 
 		void _do(const std::vector<std::string>& names);
+
+		template<typename Duration>
 		long long _view(const std::string& name);
+
 		void _remove(const std::vector<std::string>& names);
 	};
 }
