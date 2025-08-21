@@ -9,6 +9,25 @@ std::filesystem::path kamio::xdg_data_home() {
 	throw std::runtime_error("xdg data home not set");
 }
 
+std::unordered_map<std::string, std::chrono::system_clock::time_point> kamio::TaskManager::read(const nlohmann::json &j) {
+	std::unordered_map<std::string, std::chrono::system_clock::time_point> tasks;
+	for (auto it = j.begin(); it != j.end(); ++it) {
+		long long secs = it.value().get<long long>();
+		const auto tp = std::chrono::system_clock::time_point(std::chrono::seconds(secs));
+		tasks[it.key()] = tp;
+	}
+	return tasks;
+}
+
+nlohmann::json kamio::TaskManager::write(const std::unordered_map<std::string, std::chrono::system_clock::time_point> &tasks) {
+	nlohmann::json j;
+	for (const auto& [name, time] : tasks) {
+		const auto secs = std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count();
+		j[name] = secs;
+	}
+	return j;
+}
+
 void kamio::TaskManager::_do(const std::string &name) {
 	tasks[name] = std::chrono::system_clock::now();
 }

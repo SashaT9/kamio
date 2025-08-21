@@ -2,6 +2,9 @@
 #include <iostream>
 #include "lib.h"
 
+const std::string APP_NAME = "kamio";
+const std::string DATA_FILE_NAME = "kamio.json";
+
 int main(int argc, char **argv) {
 	CLI::App app{"Track how long ago you last did a task"};
 	app.require_subcommand(1);
@@ -11,10 +14,10 @@ int main(int argc, char **argv) {
 	std::vector<std::string> do_tasks;
 	_do->add_option("tasks", do_tasks, "list done tasks");
 
-	/* view */
+	/* view task */
 	auto _view = app.add_subcommand("view", "view all tasks, with how many minutes ago you last did them");
 	std::string view_task;
-	_view->add_option("view", view_task, "view task");
+	_view->add_option("view", view_task, "view task")->required();
 
 	/* remove task1 task2 */
 	auto _remove = app.add_subcommand("remove", "remove specified tasks");
