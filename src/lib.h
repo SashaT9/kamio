@@ -6,7 +6,6 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 
-
 namespace kamio {
 	// returns $XDG_DATA_HOME or $HOME/.local/share
 	std::filesystem::path xdg_data_home();
@@ -14,6 +13,8 @@ namespace kamio {
 	class TaskManager {
 		std::unordered_map<std::string, std::chrono::system_clock::time_point> tasks;
 	public:
+		explicit TaskManager(std::unordered_map<std::string, std::chrono::system_clock::time_point> tasks);
+
 		static std::unordered_map<std::string, std::chrono::system_clock::time_point> read(const nlohmann::json& j);
 		static nlohmann::json write(const std::unordered_map<std::string, std::chrono::system_clock::time_point>& tasks);
 

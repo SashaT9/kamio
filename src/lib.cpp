@@ -3,10 +3,15 @@
 std::filesystem::path kamio::xdg_data_home() {
 	if (const char* xdg = std::getenv("XDG_DATA_HOME")) {
 		return std::filesystem::path(xdg);
-	} else if (const char* home = std::getenv("HOME")) {
+	}
+	if (const char* home = std::getenv("HOME")) {
 		return std::filesystem::path(home) / ".local" / "share";
 	}
 	throw std::runtime_error("xdg data home not set");
+}
+
+kamio::TaskManager::TaskManager(std::unordered_map<std::string, std::chrono::system_clock::time_point> tasks) {
+	this->tasks = tasks;
 }
 
 std::unordered_map<std::string, std::chrono::system_clock::time_point> kamio::TaskManager::read(const nlohmann::json &j) {
