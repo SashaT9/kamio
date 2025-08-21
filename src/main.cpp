@@ -1,5 +1,6 @@
-#include "CLI/CLI.hpp"
+#include <CLI/CLI.hpp>
 #include <iostream>
+#include "lib.h"
 
 int main(int argc, char **argv) {
 	CLI::App app{"Track how long ago you last did a task"};
@@ -12,6 +13,8 @@ int main(int argc, char **argv) {
 
 	/* view */
 	auto _view = app.add_subcommand("view", "view all tasks, with how many minutes ago you last did them");
+	std::string view_task;
+	_view->add_option("view", view_task, "view task");
 
 	/* remove task1 task2 */
 	auto _remove = app.add_subcommand("remove", "remove specified tasks");
@@ -19,6 +22,5 @@ int main(int argc, char **argv) {
 	_remove->add_option("tasks", removed_tasks, "list removed tasks");
 
 	CLI11_PARSE(app, argc, argv);
-
 	return 0;
 }
