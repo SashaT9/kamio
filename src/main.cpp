@@ -19,7 +19,7 @@ std::unique_ptr<CLI::App> args(kamio::TaskManager& tasks) {
 	const auto _view = app->add_subcommand("view", "view all tasks, with how many minutes ago you last did them");
 	const auto view_task = std::make_shared<std::string>();
 	_view->add_option("view", *view_task, "view task")->required();
-	_view->callback([&, view_task] { tasks._view(*view_task); });
+	_view->callback([&, view_task] { std::cout << tasks._view(*view_task) << std::endl; });
 
 	/* remove task1 task2 */
 	const auto _remove = app->add_subcommand("remove", "remove specified tasks");
@@ -32,7 +32,7 @@ std::unique_ptr<CLI::App> args(kamio::TaskManager& tasks) {
 
 nlohmann::json load_data(const std::filesystem::path& path) {
 	if (!std::filesystem::exists(path)) {
-		return nlohmann::json::object();
+		return nlohmann::json();
 	}
 	std::ifstream in(path);
 	return nlohmann::json::parse(in);
@@ -40,7 +40,7 @@ nlohmann::json load_data(const std::filesystem::path& path) {
 
 void save_data(const std::filesystem::path& path, const nlohmann::json& j) {
 	std::ofstream out(path);
-	out << j.dump();
+	out << j.dump(4);
 }
 
 int main(int argc, char **argv) {
@@ -53,5 +53,9 @@ int main(int argc, char **argv) {
 
 	const auto app = args(tasks);
 	CLI11_PARSE(*app, argc, argv);
+
+	j = kamio::TaskManager::write(tasks);
+	save_data(path, j);
+
 	return 0;
 }
