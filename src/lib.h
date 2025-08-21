@@ -12,7 +12,12 @@ namespace kamio {
 
 	class TaskManager {
 		std::unordered_map<std::string, std::chrono::system_clock::time_point> tasks;
+
 		void _do(const std::string& name);
+
+		template<typename Duration>
+		long long _view(const std::string& name);
+
 		void _remove(const std::string& name);
 	public:
 		static TaskManager read(const nlohmann::json& j);
@@ -21,7 +26,7 @@ namespace kamio {
 		void _do(const std::vector<std::string>& names);
 
 		template<typename Duration>
-		long long _view(const std::string& name);
+		std::vector<std::pair<std::string, long long>> _view(const std::vector<std::string>& names);
 
 		void _remove(const std::vector<std::string>& names);
 	};

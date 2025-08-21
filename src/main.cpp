@@ -17,9 +17,13 @@ std::unique_ptr<CLI::App> args(kamio::TaskManager& tasks) {
 
 	/* view task */
 	const auto _view = app->add_subcommand("view", "view all tasks, with how many minutes ago you last did them");
-	const auto view_task = std::make_shared<std::string>();
-	_view->add_option("view", *view_task, "view task")->required();
-	_view->callback([&, view_task] { std::cout << tasks._view<std::chrono::minutes>(*view_task) << std::endl; });
+	const auto view_tasks = std::make_shared<std::vector<std::string>>();
+	_view->add_option("view", *view_tasks, "view task")->required();
+	_view->callback([&, view_tasks] {
+		for (const auto& [name, time] : tasks._view<std::chrono::seconds>(*view_tasks)) {
+			std::cout << std::left << std::setw(10) << name << std::right << std::setw(5) << time << std::endl;
+		}
+ 	});
 
 	/* remove task1 task2 */
 	const auto _remove = app->add_subcommand("remove", "remove specified tasks");

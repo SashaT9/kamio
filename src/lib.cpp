@@ -60,7 +60,21 @@ long long kamio::TaskManager::_view(const std::string& name) {
 	return std::chrono::duration_cast<Duration>(now-tasks[name]).count();
 }
 
+template<typename Duration>
+std::vector<std::pair<std::string, long long>> kamio::TaskManager::_view(const std::vector<std::string>& names) {
+	std::vector<std::pair<std::string, long long>> res;
+	for (const auto& name : names) {
+		res.push_back(std::make_pair(name, _view<Duration>(name)));
+	}
+	return res;
+}
+
 template long long kamio::TaskManager::_view<std::chrono::seconds>(const std::string&);
 template long long kamio::TaskManager::_view<std::chrono::minutes>(const std::string&);
 template long long kamio::TaskManager::_view<std::chrono::hours>(const std::string&);
 template long long kamio::TaskManager::_view<std::chrono::days>(const std::string&);
+
+template std::vector<std::pair<std::string, long long>> kamio::TaskManager::_view<std::chrono::seconds>(const std::vector<std::string>&);
+template std::vector<std::pair<std::string, long long>> kamio::TaskManager::_view<std::chrono::minutes>(const std::vector<std::string>&);
+template std::vector<std::pair<std::string, long long>> kamio::TaskManager::_view<std::chrono::hours>(const std::vector<std::string>&);
+template std::vector<std::pair<std::string, long long>> kamio::TaskManager::_view<std::chrono::days>(const std::vector<std::string>&);
