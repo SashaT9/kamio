@@ -22,22 +22,33 @@ std::unique_ptr<CLI::App> args(kamio::TaskManager& tasks) {
 	auto hours = std::make_shared<bool>(false);
 	auto minutes = std::make_shared<bool>(false);
 	auto seconds = std::make_shared<bool>(false);
+	auto json = std::make_shared<bool>(false);
 	_view->add_flag("-D", *days, "display days");
 	_view->add_flag("-H", *hours, "display hours");
 	_view->add_flag("-M", *minutes, "display minutes");
 	_view->add_flag("-S", *seconds, "display seconds");
+	_view->add_flag("-j, --json", *json, "display in json");
 	auto view_tasks = std::make_shared<std::vector<std::string>>(tasks.get_names());
 	_view->add_option("view", *view_tasks, "view tasks");
-	_view->callback([&, view_tasks, days, hours, minutes, seconds] {
+	_view->callback([&, view_tasks, days, hours, minutes, seconds, json] {
 		if (!*days && !*hours && !*minutes && !*seconds) {
 			*days = true;
 			*hours = true;
 			*minutes = true;
 			*seconds = false;
 		}
-		for (const auto& [name, time] : tasks._view<std::chrono::seconds>(*view_tasks)) {
-			std::cout << std::left << std::setw(10) << name << std::right << std::setw(5) << kamio::format_duration(
-				std::chrono::seconds(time), *days, *hours, *minutes, *seconds) << std::endl;
+		if (*json) {
+			nlohmann::json j;
+			for (const auto& [name, time] : tasks._view<std::chrono::seconds>(*view_tasks)) {
+				auto dur = kamio::Duration(std::chrono::seconds(time), *days, *hours, *minutes, *seconds);
+				j[name] = dur.to_json(*days, *hours, *minutes, *seconds);
+			}
+			std::cout << j.dump() << std::endl;
+		} else {
+			for (const auto& [name, time] : tasks._view<std::chrono::seconds>(*view_tasks)) {
+				auto dur = kamio::Duration(std::chrono::seconds(time), *days, *hours, *minutes, *seconds);
+				std::cout << std::left << std::setw(10) << name << std::right << std::setw(5) << dur.to_string(*days, *hours, *minutes, *seconds) << std::endl;
+			}
 		}
  	});
 

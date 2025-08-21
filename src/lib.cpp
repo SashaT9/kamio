@@ -10,35 +10,51 @@ std::filesystem::path kamio::xdg_data_home() {
 	throw std::runtime_error("xdg data home not set");
 }
 
-std::string kamio::format_duration(std::chrono::seconds duration, const bool days, const bool hours, const bool mins, const bool secs) {
-	std::string res;
-	if (days) {
+kamio::Duration::Duration(std::chrono::seconds duration, bool D, bool H, bool M, bool S) {
+	if (D) {
 		const auto d = std::chrono::duration_cast<std::chrono::days>(duration);
 		duration -= d;
-		res.append(std::to_string(d.count()) + "d ");
+		this->days = d.count();
 	}
-	if (hours) {
+	if (H) {
 		const auto h = std::chrono::duration_cast<std::chrono::hours>(duration);
 		duration -= h;
-		res.append(std::to_string(h.count()) + "h ");
+		this->hours = h.count();
 	}
-	if (mins) {
+	if (M) {
 		const auto m = std::chrono::duration_cast<std::chrono::minutes>(duration);
 		duration -= m;
-		res.append(std::to_string(m.count()) + "m ");
+		this->minutes = m.count();
 	}
-	if (secs) {
+	if (S) {
 		const auto s = std::chrono::duration_cast<std::chrono::seconds>(duration);
 		duration -= s;
-		res.append(std::to_string(s.count()) + "s ");
+		this->seconds = s.count();
 	}
+}
+
+std::string kamio::Duration::to_string(bool D, bool H, bool M, bool S) const {
+	std::string res;
+	if (D) res.append(std::to_string(this->days) + "d ");
+	if (H) res.append(std::to_string(this->hours) + "h ");
+	if (M) res.append(std::to_string(this->minutes) + "m ");
+	if (S) res.append(std::to_string(this->seconds) + "s ");
+	return res;
+}
+
+nlohmann::json kamio::Duration::to_json(bool D, bool H, bool M, bool S) const {
+	nlohmann::json res;
+	if (D) res["days"] = this->days;
+	if (H) res["hours"] = this->hours;
+	if (M) res["minutes"] = this->minutes;
+	if (S) res["seconds"] = this->seconds;
 	return res;
 }
 
 kamio::TaskManager kamio::TaskManager::read(const nlohmann::json& j) {
 	TaskManager res;
 	for (auto it = j.begin(); it != j.end(); ++it) {
-		long long secs = it.value().get<long long>();
+		int secs = it.value().get<int>();
 		const auto tp = std::chrono::system_clock::time_point(std::chrono::seconds(secs));
 		res.tasks[it.key()] = tp;
 	}
@@ -85,7 +101,7 @@ void kamio::TaskManager::_remove(const std::vector<std::string>& names) {
 }
 
 template<typename Duration>
-long long kamio::TaskManager::_view(const std::string& name) {
+int kamio::TaskManager::_view(const std::string& name) {
 	if (!tasks.contains(name)) {
 		return 0;
 	}
@@ -94,20 +110,20 @@ long long kamio::TaskManager::_view(const std::string& name) {
 }
 
 template<typename Duration>
-std::vector<std::pair<std::string, long long>> kamio::TaskManager::_view(const std::vector<std::string>& names) {
-	std::vector<std::pair<std::string, long long>> res;
+std::vector<std::pair<std::string, int>> kamio::TaskManager::_view(const std::vector<std::string>& names) {
+	std::vector<std::pair<std::string, int>> res;
 	for (const auto& name : names) {
 		res.push_back(std::make_pair(name, _view<Duration>(name)));
 	}
 	return res;
 }
 
-template long long kamio::TaskManager::_view<std::chrono::seconds>(const std::string&);
-template long long kamio::TaskManager::_view<std::chrono::minutes>(const std::string&);
-template long long kamio::TaskManager::_view<std::chrono::hours>(const std::string&);
-template long long kamio::TaskManager::_view<std::chrono::days>(const std::string&);
+template int kamio::TaskManager::_view<std::chrono::seconds>(const std::string&);
+template int kamio::TaskManager::_view<std::chrono::minutes>(const std::string&);
+template int kamio::TaskManager::_view<std::chrono::hours>(const std::string&);
+template int kamio::TaskManager::_view<std::chrono::days>(const std::string&);
 
-template std::vector<std::pair<std::string, long long>> kamio::TaskManager::_view<std::chrono::seconds>(const std::vector<std::string>&);
-template std::vector<std::pair<std::string, long long>> kamio::TaskManager::_view<std::chrono::minutes>(const std::vector<std::string>&);
-template std::vector<std::pair<std::string, long long>> kamio::TaskManager::_view<std::chrono::hours>(const std::vector<std::string>&);
-template std::vector<std::pair<std::string, long long>> kamio::TaskManager::_view<std::chrono::days>(const std::vector<std::string>&);
+template std::vector<std::pair<std::string, int>> kamio::TaskManager::_view<std::chrono::seconds>(const std::vector<std::string>&);
+template std::vector<std::pair<std::string, int>> kamio::TaskManager::_view<std::chrono::minutes>(const std::vector<std::string>&);
+template std::vector<std::pair<std::string, int>> kamio::TaskManager::_view<std::chrono::hours>(const std::vector<std::string>&);
+template std::vector<std::pair<std::string, int>> kamio::TaskManager::_view<std::chrono::days>(const std::vector<std::string>&);

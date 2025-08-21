@@ -10,7 +10,12 @@ namespace kamio {
 	// returns $XDG_DATA_HOME or $HOME/.local/share
 	std::filesystem::path xdg_data_home();
 
-	std::string format_duration(const std::chrono::seconds duration, bool days, bool hours, bool mins, bool secs);
+	struct Duration {
+		int days, hours, minutes, seconds;
+		Duration(std::chrono::seconds duration, bool D, bool H, bool M, bool S);
+		std::string to_string(bool D, bool H, bool M, bool S) const;
+		nlohmann::json to_json(bool D, bool H, bool M, bool S) const;
+	};
 
 	class TaskManager {
 		std::unordered_map<std::string, std::chrono::system_clock::time_point> tasks;
@@ -18,7 +23,7 @@ namespace kamio {
 		void _do(const std::string& name);
 
 		template<typename Duration>
-		long long _view(const std::string& name);
+		int _view(const std::string& name);
 
 		void _remove(const std::string& name);
 	public:
@@ -29,7 +34,7 @@ namespace kamio {
 		void _do(const std::vector<std::string>& names);
 
 		template<typename Duration>
-		std::vector<std::pair<std::string, long long>> _view(const std::vector<std::string>& names);
+		std::vector<std::pair<std::string, int>> _view(const std::vector<std::string>& names);
 
 		void _remove(const std::vector<std::string>& names);
 	};
