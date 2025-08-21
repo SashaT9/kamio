@@ -22,6 +22,7 @@ namespace kamio {
 	public:
 		static TaskManager read(const nlohmann::json& j);
 		nlohmann::json write();
+		std::vector<std::string> get_names();
 
 		void _do(const std::vector<std::string>& names);
 

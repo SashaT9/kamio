@@ -29,6 +29,14 @@ nlohmann::json kamio::TaskManager::write() {
 	return j;
 }
 
+std::vector<std::string> kamio::TaskManager::get_names() {
+	std::vector<std::string> names;
+	for (const auto& [name, time] : tasks) {
+		names.push_back(name);
+	}
+	return names;
+}
+
 void kamio::TaskManager::_do(const std::string& name) {
 	tasks[name] = std::chrono::system_clock::now();
 }
